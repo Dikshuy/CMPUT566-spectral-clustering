@@ -1,0 +1,20 @@
+# python
+__pycache__/
+*.py[codz]
+*.egg-info/
+build/
+dist/
+
+# environment
+.venv/
+
+# tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.jax_cache/
+
+# editors and OS
+.DS_Store
+.idea/
