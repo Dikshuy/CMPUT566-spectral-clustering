@@ -17,4 +17,6 @@ dist/
 
 # editors and OS
 .DS_Store
-.idea/
+
+# logs/
+runs/
