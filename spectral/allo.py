@@ -38,10 +38,11 @@ def _violation(u: jax.Array) -> jax.Array:
 
 
 class Learner(nnx.Module):
-    def __init__(self, cfg: ALLOConfig, x_dim: int, mean, std, rngs: nnx.Rngs):
+    def __init__(self, cfg: ALLOConfig, x_dim: int, mean, std, steps: int, rngs: nnx.Rngs):
         self.cfg = cfg
         self.allo = ALLO(cfg, x_dim, mean, std, rngs)
-        self.opt = nnx.Optimizer(self.allo, optax.adam(cfg.lr), wrt=nnx.Param)
+        lr = optax.cosine_decay_schedule(cfg.lr, decay_steps=steps, alpha=cfg.lr_final / cfg.lr)
+        self.opt = nnx.Optimizer(self.allo, optax.adam(lr), wrt=nnx.Param)
 
     def update(self, batch: Batch) -> dict:
         cfg = self.cfg

@@ -28,6 +28,7 @@ class ALLOConfig:
     d: int = 8
     net: NetConfig = NetConfig()
     lr: float = 1e-3
+    lr_final: float = 1e-5
     barrier_init: float = 0.5
     barrier_min: float = 0.0
     barrier_max: float = 5.0
