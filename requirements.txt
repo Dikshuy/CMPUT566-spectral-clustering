@@ -1,0 +1,9 @@
+jax==0.10.2
+jaxlib==0.10.2
+flax==0.12.7
+optax==0.2.8
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+tyro==1.0.15
