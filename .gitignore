@@ -19,4 +19,4 @@ dist/
 .DS_Store
 
 # logs/
-runs/
+eigvecs.png
