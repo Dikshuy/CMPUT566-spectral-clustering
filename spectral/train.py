@@ -61,20 +61,23 @@ def run(cfg: Config) -> dict:
 
     L = graph.laplacian()
     history, t = [], time.perf_counter()
-    print(f"{'step':>7} {'graph':>8} {'orth':>7} {'barrier':>7} {'cos_mean':>8} {'subspace':>8} {'eig_err':>8} {'ray_err':>8} {'time':>6}")
+    print(f"{'step':>7} {'graph':>8} {'orth':>7} {'barrier':>7} {'cos':>6} {'cos_mat':>7} {'subspace':>8} {'eig_err':>8} {'ray_err':>8} {'time':>6}")
     for start in range(0, cfg.run.steps, cfg.run.log_every):
         state, metrics = chunk(state, data, keys, jnp.int32(start))
         U, mu_hat = map(np.asarray, embed(state))
         lam_hat = mu_hat * graph.vol / graph.n      # ALLO's duals learn mu = lambda * n / vol
         evals = [compare(U[s], V, lam_hat[s], lam, L) for s in range(len(cfg.run.seeds))]
         row = {"step": start + cfg.run.log_every, **{k: float(v.mean()) for k, v in metrics.items()},
-               **{k: np.mean([e[k] for e in evals], 0) for k in evals[0]}}
+               **{k: np.mean([e[k] for e in evals], 0) for k in evals[0] if k != "match"}}
         history.append(row)
         print(f"{row['step']:>7} {row['graph_loss']:>8.4f} {row['orth_err']:>7.4f} {row['barrier']:>7.3f} "
-              f"{row['cosine'].mean():>8.3f} {row['subspace']:>8.4f} {row['eig_abs_err'].mean():>8.2e} "
-              f"{row['rayleigh_abs_err'].mean():>8.2e} {time.perf_counter() - t:>5.0f}s")
+              f"{row['cosine'].mean():>6.3f} {row['cosine_matched'].mean():>7.3f} {row['subspace']:>8.4f} "
+              f"{row['eig_abs_err'].mean():>8.2e} {row['rayleigh_abs_err'].mean():>8.2e} {time.perf_counter() - t:>5.0f}s")
 
-    print(f"[final] cosine per eigenvector (mean over seeds) = {np.array2string(history[-1]['cosine'], precision=3)}")
+    print(f"[final] cosine         (mean over seeds) = {np.array2string(history[-1]['cosine'], precision=3)}")
+    print(f"[final] cosine_matched (mean over seeds) = {np.array2string(history[-1]['cosine_matched'], precision=3)}")
+    for s, e in zip(cfg.run.seeds, evals):
+        print(f"[final] seed {s}: learned i -> exact {e['match'].tolist()}")
     print(f"[final] lambda     (exact)  = {np.array2string(lam, precision=4)}")
     print(f"[final] lambda_hat (duals)  = {np.array2string(lam_hat[0], precision=4)}  (seed 0)")
     print(f"[final] rayleigh   (U)      = {np.array2string(evals[0]['rayleigh'], precision=4)}  (seed 0)")
